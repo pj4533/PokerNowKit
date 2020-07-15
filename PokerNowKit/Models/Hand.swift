@@ -43,8 +43,19 @@ public class Hand {
     //   - flop
     //   - turn
     //   - river
+    
+    public func getPokerStarsDescription(heroName: String, multiplier: Double, tableName: String) -> [String] {
+        return self.pokerStarsDescription(heroName: heroName, multiplier: multiplier, tableName: tableName)
+    }
+    
     public func printPokerStarsDescription(heroName: String, multiplier: Double, tableName: String) {
-
+        let lines = self.pokerStarsDescription(heroName: heroName, multiplier: multiplier, tableName: tableName)
+        print(lines.joined(separator: "\n"))
+    }
+        
+    func pokerStarsDescription(heroName: String, multiplier: Double, tableName: String) -> [String] {
+        var lines : [String] = []
+        
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"
         var dateString = ""
@@ -71,7 +82,8 @@ public class Hand {
         for line in self.lines {
             if line.contains("starting hand") {
                 self.uncalledBet = 0
-                print("PokerStars Hand #\(self.id): Hold'em No Limit (\(String(format: "$%.02f", Double(self.smallBlindSize) * multiplier))/\(String(format: "$%.02f", Double(self.bigBlindSize) * multiplier )) USD) - \(dateString) ET")
+                
+                lines.append("PokerStars Hand #\(self.id): Hold'em No Limit (\(String(format: "$%.02f", Double(self.smallBlindSize) * multiplier))/\(String(format: "$%.02f", Double(self.bigBlindSize) * multiplier )) USD) - \(dateString) ET")
                 
                 var smallBlindSeat = 0
                 for seat in self.seats {
@@ -87,7 +99,7 @@ public class Hand {
                     }
                 }
                 
-                print("Table '\(tableName)' 10-max Seat #\(dealerSeat) is the button")
+                lines.append("Table '\(tableName)' 10-max Seat #\(dealerSeat) is the button")
             }
                         
             if line.contains("Player stacks:") {
@@ -102,26 +114,27 @@ public class Hand {
                     let stackSize = playerWithStack.components(separatedBy: "\" (").last?.replacingOccurrences(of: ")", with: "")
                     let stackSizeFormatted = "\(String(format: "$%.02f", (Double(stackSize ?? "0") ?? 0.0) * multiplier))"
 
-                    print("Seat \(seatNumberInt): \(nameIdArray?.first ?? "error") (\(stackSizeFormatted) in chips)")
+                    lines.append("Seat \(seatNumberInt): \(nameIdArray?.first ?? "error") (\(stackSizeFormatted) in chips)")
+                    
                 }
                                 
-                print("\(self.smallBlind?.name ?? "Unknown"): posts small blind \(String(format: "$%.02f", Double(self.smallBlindSize) * multiplier))")
+                lines.append("\(self.smallBlind?.name ?? "Unknown"): posts small blind \(String(format: "$%.02f", Double(self.smallBlindSize) * multiplier))")
                 
                 for bigBlind in self.bigBlind {
-                    print("\(bigBlind.name ?? "Unknown"): posts big blind \(String(format: "$%.02f", Double(self.bigBlindSize) * multiplier ))")
+                    lines.append("\(bigBlind.name ?? "Unknown"): posts big blind \(String(format: "$%.02f", Double(self.bigBlindSize) * multiplier ))")
                 }
             }
             
             if line.contains("Your hand") {
-                print("*** HOLE CARDS ***")
-                print("Dealt to \(heroName) [\(self.hole?.map({$0.rawValue}).joined(separator: " ") ?? "error")]")
+                lines.append("*** HOLE CARDS ***")
+                lines.append("Dealt to \(heroName) [\(self.hole?.map({$0.rawValue}).joined(separator: " ") ?? "error")]")
                 foundHoleCards = true
             }
 
             if line.starts(with: "\"") {
                 if line.contains("bets") || line.contains("shows") || line.contains("calls") || line.contains("raises") || line.contains("checks") || line.contains("folds") || line.contains("wins") || line.contains("gained") || line.contains("collected") {
                     if !foundHoleCards {
-                        print("*** HOLE CARDS ***")
+                        lines.append("*** HOLE CARDS ***")
                         foundHoleCards = true
                     }
                     let nameIdArray = line.components(separatedBy: "\" ").first?.components(separatedBy: " @ ")
@@ -132,7 +145,7 @@ public class Hand {
                             }
 
                             let betSize = (Double(line.replacingOccurrences(of: " and go all in", with: "").components(separatedBy: " ").last ?? "0") ?? 0) * multiplier
-                            print("\(player.name ?? "unknown"): bets \(String(format: "$%.02f", betSize))")
+                            lines.append("\(player.name ?? "unknown"): bets \(String(format: "$%.02f", betSize))")
                             currentBet = betSize
                             isFirstAction = false
 
@@ -147,11 +160,11 @@ public class Hand {
 
                             let raiseSize = (Double(line.replacingOccurrences(of: " and go all in", with: "").components(separatedBy: "to ").last ?? "0") ?? 0) * multiplier
                             if isFirstAction {
-                                print("\(player.name ?? "unknown"): bets \(String(format: "$%.02f", raiseSize))")
+                                lines.append("\(player.name ?? "unknown"): bets \(String(format: "$%.02f", raiseSize))")
                                 currentBet = raiseSize
                                 isFirstAction = false
                             } else {
-                                print("\(player.name ?? "unknown"): raises \(String(format: "$%.02f", raiseSize - currentBet)) to \(String(format: "$%.02f", raiseSize))")
+                                lines.append("\(player.name ?? "unknown"): raises \(String(format: "$%.02f", raiseSize - currentBet)) to \(String(format: "$%.02f", raiseSize))")
                                 currentBet = raiseSize
                             }
                             previousAction[player.id ?? "error"] = raiseSize
@@ -165,22 +178,22 @@ public class Hand {
                             let callAmount = line.replacingOccurrences(of: " and go all in", with: "").components(separatedBy: "calls ").last ?? "0"
                             let callSize = (Double(callAmount) ?? 0) * multiplier
                             if isFirstAction {
-                                print("\(player.name ?? "unknown"): bets \(String(format: "$%.02f", callSize))")
+                                lines.append("\(player.name ?? "unknown"): bets \(String(format: "$%.02f", callSize))")
                                 currentBet = callSize
                                 isFirstAction = false
                             } else {
                                 let uncalledPortionOfBet = callSize - (previousAction[player.id ?? "error"] ?? 0.0)
-                                print("\(player.name ?? "unknown"): calls \(String(format: "$%.02f", uncalledPortionOfBet))")
+                                lines.append("\(player.name ?? "unknown"): calls \(String(format: "$%.02f", uncalledPortionOfBet))")
                             }
                             previousAction[player.id ?? "error"] = callSize
                         }
 
                         if line.contains("checks") {
-                            print("\(player.name ?? "unknown"): checks")
+                            lines.append("\(player.name ?? "unknown"): checks")
                         }
 
                         if line.contains("folds") {
-                            print("\(player.name ?? "unknown"): folds")
+                            lines.append("\(player.name ?? "unknown"): folds")
                             if let index = self.seats.firstIndex(where: { $0.player?.id == player.id }) {
                                 
                                 if (streetDescription == "before Flop") && !self.seats[index].preFlopBet {
@@ -211,11 +224,11 @@ public class Hand {
                                 let winningHandComponents = line.components(separatedBy: "hand: ").last?.replacingOccurrences(of: ")", with: "").components(separatedBy: ", ")
                                 totalPotSize = winPotSize
                                 if !self.printedShowdown {
-                                    print("*** SHOW DOWN ***")
+                                    lines.append("*** SHOW DOWN ***")
                                     self.printedShowdown = true
                                 }
-                                print("\(player.name ?? "Unknown"): shows [\(winningHandComponents?.map({ (EmojiCard(rawValue: $0)?.emojiFlip.rawValue ?? "error") }).joined(separator: " ") ?? "error")] (\(winDescription))")
-                                print("\(player.name ?? "Unknown") collected \(String(format: "$%.02f", winPotSize)) from pot")
+                                lines.append("\(player.name ?? "Unknown"): shows [\(winningHandComponents?.map({ (EmojiCard(rawValue: $0)?.emojiFlip.rawValue ?? "error") }).joined(separator: " ") ?? "error")] (\(winDescription))")
+                                lines.append("\(player.name ?? "Unknown") collected \(String(format: "$%.02f", winPotSize)) from pot")
                                 
                                 if let index = self.seats.firstIndex(where: { $0.player?.id == player.id }) {
                                     self.seats[index].summary = "\(player.name ?? "Unknown") showed [\(winningHandComponents?.map({ (EmojiCard(rawValue: $0)?.emojiFlip.rawValue ?? "error") }).joined(separator: " ") ?? "error")] and won (\(String(format: "$%.02f", winPotSize))) with \(winDescription)"
@@ -229,7 +242,7 @@ public class Hand {
                                 gainedPotSize = gainedPotSize - (Double(self.smallBlindSize * self.missingSmallBlinds.count) * multiplier)
 
                                 if self.uncalledBet > 0 {
-                                    print("Uncalled bet (\(String(format: "$%.02f", Double(self.uncalledBet) * multiplier))) returned to \(player.name ?? "Unknown")")
+                                    lines.append("Uncalled bet (\(String(format: "$%.02f", Double(self.uncalledBet) * multiplier))) returned to \(player.name ?? "Unknown")")
                                 }
                                 
                                 if self.flop == nil {
@@ -246,7 +259,7 @@ public class Hand {
                                 }
 
                                 totalPotSize = gainedPotSize
-                                print("\(player.name ?? "Unknown") collected \(String(format: "$%.02f", gainedPotSize)) from pot")
+                                lines.append("\(player.name ?? "Unknown") collected \(String(format: "$%.02f", gainedPotSize)) from pot")
                                 if let index = self.seats.firstIndex(where: { $0.player?.id == player.id }) {
                                     self.seats[index].summary = "\(player.name ?? "Unknown") collected (\(String(format: "$%.02f", gainedPotSize)))"
                                 }
@@ -265,7 +278,7 @@ public class Hand {
             }
             
             if line.starts(with: "flop:") {
-                print("*** FLOP *** [\(self.flop?.map({$0.rawValue}).joined(separator: " ") ?? "error")]")
+                lines.append("*** FLOP *** [\(self.flop?.map({$0.rawValue}).joined(separator: " ") ?? "error")]")
                 isFirstAction = true
                 currentBet = 0
                 for player in self.players {
@@ -275,7 +288,7 @@ public class Hand {
             }
 
             if line.starts(with: "turn:") {
-                print("*** TURN *** [\(self.flop?.map({$0.rawValue}).joined(separator: " ") ?? "error")] [\(self.turn?.rawValue ?? "error")]")
+                lines.append("*** TURN *** [\(self.flop?.map({$0.rawValue}).joined(separator: " ") ?? "error")] [\(self.turn?.rawValue ?? "error")]")
                 isFirstAction = true
                 currentBet = 0
                 for player in self.players {
@@ -285,7 +298,7 @@ public class Hand {
             }
 
             if line.starts(with: "river:") {
-                print("*** RIVER *** [\(self.flop?.map({$0.rawValue}).joined(separator: " ") ?? "error") \(self.turn?.rawValue ?? "error")] [\(self.river?.rawValue ?? "error")]")
+                lines.append("*** RIVER *** [\(self.flop?.map({$0.rawValue}).joined(separator: " ") ?? "error") \(self.turn?.rawValue ?? "error")] [\(self.river?.rawValue ?? "error")]")
                 isFirstAction = true
                 currentBet = 0
                 for player in self.players {
@@ -295,15 +308,15 @@ public class Hand {
             }
             
             if self.lines.last == line {
-                print("*** SUMMARY ***")
-                print("Total pot: \(String(format: "$%.02f", totalPotSize)) | Rake 0")
+                lines.append("*** SUMMARY ***")
+                lines.append("Total pot: \(String(format: "$%.02f", totalPotSize)) | Rake 0")
                 var board: [Card] = []
                 board.append(contentsOf: self.flop ?? [])
                 if let turn = self.turn { board.append(turn) }
                 if let river = self.river { board.append(river) }
                 
                 if board.count > 0 {
-                    print("Board: [\(board.map({$0.rawValue}).joined(separator: " "))]")
+                    lines.append("Board: [\(board.map({$0.rawValue}).joined(separator: " "))]")
                 }
                 for seat in self.seats {
                     var summary = seat.summary
@@ -326,15 +339,15 @@ public class Hand {
                         }
                     }
                     if seat.showedHand != nil {
-                        print("Seat \(seat.number): \(summary) [\(seat.showedHand ?? "error")]")
+                        lines.append("Seat \(seat.number): \(summary) [\(seat.showedHand ?? "error")]")
                     } else {
-                        print("Seat \(seat.number): \(summary)")
+                        lines.append("Seat \(seat.number): \(summary)")
                     }
                 }
-                print("")
+                lines.append("")
             }
         }
 
-        
+        return lines
     }
 }
