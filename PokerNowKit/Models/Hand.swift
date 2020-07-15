@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Hand {
+public class Hand {
     var date: Date?
     var hole: [Card]?
     var river: Card?
@@ -43,7 +43,7 @@ class Hand {
     //   - flop
     //   - turn
     //   - river
-    func printPokerStarsDescription(heroName: String, multiplier: Double, tableName: String) {
+    public func printPokerStarsDescription(heroName: String, multiplier: Double, tableName: String) {
 
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy/MM/dd HH:mm:ss"

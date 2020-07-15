@@ -17,18 +17,18 @@ extension Data {
     }
 }
 
-class Game: NSObject {
+public class Game: NSObject {
 
     var debugHandAction: Bool = false
     var showErrors: Bool = false
     
     var players: [Player] = []
-    var hands: [Hand] = []
+    public var hands: [Hand] = []
     var currentHand: Hand?
 
     var overflowLogDealerId: String?
 
-    init(rows: [[String:String]]) {
+    public init(rows: [[String:String]]) {
         super.init()
 
         if self.isSupportedLog(at: rows.reversed().first?["at"]) {
