@@ -7,15 +7,7 @@
 //
 
 import Foundation
-import var CommonCrypto.CC_MD5_DIGEST_LENGTH
-import func CommonCrypto.CC_MD5
-import typealias CommonCrypto.CC_LONG
-
-extension Data {
-    func hexEncodedString() -> String {
-        return map { String(format: "%02hhx", $0) }.joined()
-    }
-}
+import CryptoSwift
 
 public class Game: NSObject {
 
@@ -47,23 +39,6 @@ public class Game: NSObject {
         }
     }
         
-    func MD5(string: String) -> Data {
-        let length = Int(CC_MD5_DIGEST_LENGTH)
-        let messageData = string.data(using:.utf8)!
-        var digestData = Data(count: length)
-
-        _ = digestData.withUnsafeMutableBytes { digestBytes -> UInt8 in
-            messageData.withUnsafeBytes { messageBytes -> UInt8 in
-                if let messageBytesBaseAddress = messageBytes.baseAddress, let digestBytesBlindMemory = digestBytes.bindMemory(to: UInt8.self).baseAddress {
-                    let messageLength = CC_LONG(messageData.count)
-                    CC_MD5(messageBytesBaseAddress, messageLength, digestBytesBlindMemory)
-                }
-                return 0
-            }
-        }
-        return digestData
-    }
-
     private func isSupportedLog(at: String?) -> Bool {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -106,7 +81,7 @@ public class Game: NSObject {
             if let dealer = self.players.filter({$0.id == dealerNameIdArray?.last}).first {
                 let hand = Hand()
 
-                let handIdHex = String(self.MD5(string: "\(dealer.id ?? "error")-\(date?.timeIntervalSince1970 ?? 0)").hexEncodedString().prefix(15))
+                let handIdHex = String("\(dealer.id ?? "error")-\(date?.timeIntervalSince1970 ?? 0)".md5().bytes.toHexString().prefix(15))
                 var hexInt: UInt64 = 0
                 let scanner = Scanner(string: handIdHex)
                 scanner.scanHexInt64(&hexInt)
@@ -120,7 +95,7 @@ public class Game: NSObject {
             } else if msg?.contains("dead button") ?? false {
                 let hand = Hand()
 
-                let handIdHex = String(self.MD5(string: "deadbutton-\(date?.timeIntervalSince1970 ?? 0)").hexEncodedString().prefix(15))
+                let handIdHex = String("deadbutton-\(date?.timeIntervalSince1970 ?? 0)".md5().bytes.toHexString().prefix(15))
                 var hexInt: UInt64 = 0
                 let scanner = Scanner(string: handIdHex)
                 scanner.scanHexInt64(&hexInt)
@@ -135,7 +110,7 @@ public class Game: NSObject {
                 // overflow log scenario
                 let hand = Hand()
                 self.overflowLogDealerId = dealerNameIdArray?.last
-                let handIdHex = String(self.MD5(string: "\(self.overflowLogDealerId ?? "error")-\(date?.timeIntervalSince1970 ?? 0)").hexEncodedString().prefix(15))
+                let handIdHex = String("\(self.overflowLogDealerId ?? "error")-\(date?.timeIntervalSince1970 ?? 0)".md5().bytes.toHexString().prefix(15))
                 var hexInt: UInt64 = 0
                 let scanner = Scanner(string: handIdHex)
                 scanner.scanHexInt64(&hexInt)

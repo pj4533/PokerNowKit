@@ -11,11 +11,15 @@ let package = Package(
             name: "PokerNowKit",
             targets: ["PokerNowKit"]),
     ],
-    dependencies: [], // No dependencies
+    dependencies: [
+        .package(url: "https://github.com/krzyzanowskim/CryptoSwift.git", .upToNextMinor(from: "1.3.1"))
+    ], 
     targets: [
         .target(
             name: "PokerNowKit",
-            dependencies: [],
+            dependencies: [
+                .product(name: "CryptoSwift", package: "CryptoSwift"),
+            ],
             path: "PokerNowKit")
     ],
     swiftLanguageVersions: [.v5, .v4_2]
