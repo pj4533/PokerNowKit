@@ -12,6 +12,8 @@ Pod::Spec.new do |s|
 
   s.osx.deployment_target = "10.10"
 
+  s.dependency 'CryptoSwift'
+  
   s.source_files = "PokerNowKit/**/*.{h,swift}"
   s.requires_arc = true
 end
