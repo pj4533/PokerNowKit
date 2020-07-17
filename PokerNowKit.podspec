@@ -7,8 +7,8 @@ Pod::Spec.new do |s|
   s.author       = {
     "PJ Gray" => "pj4533@gmail.com"
   }
-  s.source       = { :git => "https://github.com/pj4533/PokerNowKit", :tag => s.version }
-  s.swift_versions = [ "5.0", "4.2" ]
+  s.source       = { :git => "git@github.com:pj4533/PokerNowKit.git", :tag => s.version }
+  s.swift_version = "5.0"
 
   s.osx.deployment_target = "10.10"
 
