@@ -307,6 +307,8 @@ public class Game: NSObject {
 
         if var player = self.players.filter({$0.id == nameIdArray?.last}).first {
 
+            player.name = nameIdArray?.first
+
             self.players.removeAll(where: {$0.id == nameIdArray?.last})
             
             if msg?.contains("quits the game") ?? false {
