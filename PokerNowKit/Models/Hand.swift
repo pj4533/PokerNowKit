@@ -132,7 +132,7 @@ public class Hand {
             }
 
             if line.starts(with: "\"") {
-                if line.contains("bets") || line.contains("shows") || line.contains("calls") || line.contains("raises") || line.contains("checks") || line.contains("folds") || line.contains("wins") || line.contains("gained") || line.contains("collected") {
+                if line.contains("bets") || line.contains("shows") || line.contains("calls") || line.contains("raises") || line.contains("checks") || line.contains("folds") || line.contains("wins") || line.contains("gained") || line.contains("collected") || line.contains("posts a straddle") {
                     if !foundHoleCards {
                         lines.append("*** HOLE CARDS ***")
                         foundHoleCards = true
@@ -151,7 +151,19 @@ public class Hand {
 
                             previousAction[player.id ?? "error"] = betSize
                         }
-                        
+
+                        if line.contains("posts a straddle") {
+                            
+                            if let index = self.seats.firstIndex(where: { $0.player?.id == player.id }) {
+                                self.seats[index].preFlopBet = true
+                            }
+
+                            let straddleSize = (Double(line.components(separatedBy: "of ").last ?? "0") ?? 0) * multiplier
+                            lines.append("\(player.name ?? "unknown"): raises \(String(format: "$%.02f", straddleSize - currentBet)) to \(String(format: "$%.02f", straddleSize))")
+                            currentBet = straddleSize
+                            previousAction[player.id ?? "error"] = straddleSize
+                        }
+
                         if line.contains("raises") {
                             
                             if let index = self.seats.firstIndex(where: { $0.player?.id == player.id }) {

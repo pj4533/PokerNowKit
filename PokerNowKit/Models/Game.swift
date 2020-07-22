@@ -229,7 +229,19 @@ public class Game: NSObject {
                         print("#\(self.currentHand?.id ?? 0) - \(player.name ?? "Unknown Player") posts small \(smallBlindSize)  (Pot: \(self.currentHand?.pot ?? 0))")
                     }
                 }
-                
+
+                if msg?.contains("posts a straddle") ?? false {
+                    let straddleSize = Int(msg?.components(separatedBy: "of ").last ?? "0") ?? 0
+                    self.currentHand?.pot = (self.currentHand?.pot ?? 0) + straddleSize - player.existingPotEquity
+                    self.currentHand?.uncalledBet = straddleSize - (self.currentHand?.uncalledBet ?? 0)
+
+                    player.existingPotEquity = straddleSize
+
+                    if debugHandAction {
+                        print("#\(self.currentHand?.id ?? 0) - \(player.name ?? "Unknown Player") straddles \(straddleSize)  (Pot: \(self.currentHand?.pot ?? 0))")
+                    }
+                }
+
                 if msg?.contains("raises") ?? false {
                     let raiseSize = Int(msg?.components(separatedBy: "with ").last ?? "0") ?? 0
                     self.currentHand?.pot = (self.currentHand?.pot ?? 0) + raiseSize - player.existingPotEquity
