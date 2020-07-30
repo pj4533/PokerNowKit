@@ -253,9 +253,6 @@ public class Hand {
                                 // remove missing smalls -- poker stars doesnt do this?
                                 gainedPotSize = gainedPotSize - (Double(self.smallBlindSize * self.missingSmallBlinds.count) * multiplier)
 
-                                if self.uncalledBet > 0 {
-                                    lines.append("Uncalled bet (\(String(format: "$%.02f", Double(self.uncalledBet) * multiplier))) returned to \(player.name ?? "Unknown")")
-                                }
                                 
                                 if self.flop == nil {
                                     var preFlopAction = 0.0
@@ -267,6 +264,15 @@ public class Hand {
                                     // catching edge case of folding around preflop
                                     if preFlopAction == (Double(self.bigBlindSize + self.smallBlindSize) * multiplier) {
                                         gainedPotSize = Double(self.smallBlindSize) * multiplier
+                                        lines.append("Uncalled bet (\(String(format: "$%.02f", Double(self.bigBlindSize) * multiplier))) returned to \(player.name ?? "Unknown")")
+                                    } else {
+                                        if self.uncalledBet > 0 {
+                                            lines.append("Uncalled bet (\(String(format: "$%.02f", Double(self.uncalledBet) * multiplier))) returned to \(player.name ?? "Unknown")")
+                                        }
+                                    }
+                                } else {
+                                    if self.uncalledBet > 0 {
+                                        lines.append("Uncalled bet (\(String(format: "$%.02f", Double(self.uncalledBet) * multiplier))) returned to \(player.name ?? "Unknown")")
                                     }
                                 }
 
