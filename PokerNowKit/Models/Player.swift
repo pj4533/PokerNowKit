@@ -13,9 +13,6 @@ struct Player {
     var admin: Bool?
     var sitting: Bool = true
     
-    // this is unfortunate -- basically it is the small blind
-    var existingPotEquity: Int = 0
-    
     var id: String?
     var stack: Int = 0
     var name: String?
