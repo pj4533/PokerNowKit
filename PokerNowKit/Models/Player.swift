@@ -14,6 +14,6 @@ struct Player {
     var sitting: Bool = true
     
     var id: String?
-    var stack: Int = 0
+    var stack: Double = 0
     var name: String?
 }
