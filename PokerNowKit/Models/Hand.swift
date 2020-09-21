@@ -14,8 +14,8 @@ public class Hand {
     var river: Card?
     var turn: Card?
     var flop: [Card]?
-    var pot: Int = 0
-    var uncalledBet: Int = 0
+    var pot: Double = 0
+    var uncalledBet: Double = 0
     var id: UInt64 = 0
     var dealer: Player?
     var missingSmallBlinds: [Player] = []
@@ -24,8 +24,8 @@ public class Hand {
     var players: [Player] = []
     var seats: [Seat] = []
     var lines: [String] = []
-    var smallBlindSize: Int = 0
-    var bigBlindSize: Int = 0
+    var smallBlindSize: Double = 0
+    var bigBlindSize: Double = 0
 
     var printedShowdown: Bool = false
     
@@ -117,7 +117,6 @@ public class Hand {
                     lines.append("Seat \(seatNumberInt): \(nameIdArray?.first ?? "error") (\(stackSizeFormatted) in chips)")
                     
                 }
-                                
                 lines.append("\(self.smallBlind?.name ?? "Unknown"): posts small blind \(String(format: "$%.02f", Double(self.smallBlindSize) * multiplier))")
                 
                 for bigBlind in self.bigBlind {
@@ -230,7 +229,7 @@ public class Hand {
                                 var winPotSize = (Double(line.components(separatedBy: " collected ").last?.components(separatedBy: " from pot with ").first ?? "0") ?? 0.0) * multiplier
 
                                 // remove missing smalls -- poker stars doesnt do this?
-                                winPotSize = winPotSize - (Double(self.smallBlindSize * self.missingSmallBlinds.count) * multiplier)
+                                winPotSize = winPotSize - (Double(self.smallBlindSize * Double(self.missingSmallBlinds.count)) * multiplier)
 
                                 let winDescription = line.components(separatedBy: " from pot with ").last?.components(separatedBy: " (").first ?? "error"
                                 let winningHandComponents = line.components(separatedBy: "hand: ").last?.replacingOccurrences(of: ")", with: "").components(separatedBy: ", ")
@@ -251,7 +250,7 @@ public class Hand {
                                 var gainedPotSize = (Double(line.components(separatedBy: " collected ").last?.components(separatedBy: " from pot").first ?? "0") ?? 0.0) * multiplier
 
                                 // remove missing smalls -- poker stars doesnt do this?
-                                gainedPotSize = gainedPotSize - (Double(self.smallBlindSize * self.missingSmallBlinds.count) * multiplier)
+                                gainedPotSize = gainedPotSize - (Double(self.smallBlindSize * Double(self.missingSmallBlinds.count)) * multiplier)
 
                                 
                                 if self.flop == nil {
@@ -292,7 +291,7 @@ public class Hand {
             
             if line.starts(with: "Uncalled bet") {
                 let uncalledString = line.components(separatedBy: " returned to").first?.replacingOccurrences(of: "Uncalled bet of ", with: "")
-                self.uncalledBet = Int(uncalledString ?? "0") ?? 0
+                self.uncalledBet = Double(uncalledString ?? "0") ?? 0
             }
             
             if line.starts(with: "flop:") {

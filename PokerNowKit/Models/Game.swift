@@ -103,7 +103,7 @@ public class Game: NSObject {
                 let nameIdArray = playerWithStackNoSeat.components(separatedBy: "\" ").first?.replacingOccurrences(of: "\"", with: "").components(separatedBy: " @ ")
                 let stackSize = playerWithStack.components(separatedBy: "\" (").last?.replacingOccurrences(of: ")", with: "")
                 
-                let player = Player(admin: false, id: nameIdArray?.last, stack: Int(stackSize ?? "0") ?? 0, name: nameIdArray?.first)
+                let player = Player(admin: false, id: nameIdArray?.last, stack: Double(stackSize ?? "0") ?? 0, name: nameIdArray?.first)
                 players.append(player)
                 
                 self.currentHand?.seats.append(Seat(player: player, summary: "\(player.name ?? "Unknown") didn't show and lost", preFlopBet: false, number: seatNumberInt))
@@ -152,7 +152,7 @@ public class Game: NSObject {
             if let player = self.currentHand?.players.filter({$0.id == nameIdArray?.last}).first {
                 
                 if msg?.contains("big blind") ?? false {
-                    let bigBlindSize = Int(msg?.components(separatedBy: "big blind of ").last ?? "0") ?? 0
+                    let bigBlindSize = Double(msg?.components(separatedBy: "big blind of ").last ?? "0") ?? 0
                     self.currentHand?.bigBlindSize = bigBlindSize
                     self.currentHand?.bigBlind.append(player)
 
@@ -162,7 +162,7 @@ public class Game: NSObject {
                 }
 
                 if msg?.contains("small blind") ?? false {
-                    let smallBlindSize = Int(msg?.components(separatedBy: "small blind of ").last ?? "0") ?? 0
+                    let smallBlindSize = Double(msg?.components(separatedBy: "small blind of ").last ?? "0") ?? 0
                     self.currentHand?.smallBlindSize = smallBlindSize
                     if msg?.contains("missing") ?? false {
                         self.currentHand?.missingSmallBlinds.append(player)
