@@ -16,7 +16,7 @@ public class Hand {
     var flop: [Card]?
     var pot: Double = 0
     var uncalledBet: Double = 0
-    var id: UInt64 = 0
+    public var id: UInt64 = 0
     var dealer: Player?
     var missingSmallBlinds: [Player] = []
     var smallBlind: Player?
