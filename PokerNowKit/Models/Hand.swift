@@ -220,6 +220,7 @@ public class Hand {
                             let handComponents = line.components(separatedBy: "shows a ").last?.replacingOccurrences(of: ".", with: "").components(separatedBy: ", ")
                             if let index = self.seats.firstIndex(where: { $0.player?.id == player.id }) {
                                 self.seats[index].showedHand = handComponents?.map({ (EmojiCard(rawValue: $0)?.emojiFlip.rawValue ?? "error") }).joined(separator: " ") ?? "error"
+                                lines.append("\(player.name ?? "Unknown"): shows [\(handComponents?.map({ (EmojiCard(rawValue: $0)?.emojiFlip.rawValue ?? "error") }).joined(separator: " ") ?? "error")]")
                             }
                         }
                         
@@ -232,17 +233,15 @@ public class Hand {
                                 winPotSize = winPotSize - (Double(self.smallBlindSize * Double(self.missingSmallBlinds.count)) * multiplier)
 
                                 let winDescription = line.components(separatedBy: " from pot with ").last?.components(separatedBy: " (").first ?? "error"
-                                let winningHandComponents = line.components(separatedBy: "hand: ").last?.replacingOccurrences(of: ")", with: "").components(separatedBy: ", ")
                                 totalPotSize = winPotSize
                                 if !self.printedShowdown {
                                     lines.append("*** SHOW DOWN ***")
                                     self.printedShowdown = true
                                 }
-                                lines.append("\(player.name ?? "Unknown"): shows [\(winningHandComponents?.map({ (EmojiCard(rawValue: $0)?.emojiFlip.rawValue ?? "error") }).joined(separator: " ") ?? "error")] (\(winDescription))")
                                 lines.append("\(player.name ?? "Unknown") collected \(String(format: "$%.02f", winPotSize)) from pot")
                                 
                                 if let index = self.seats.firstIndex(where: { $0.player?.id == player.id }) {
-                                    self.seats[index].summary = "\(player.name ?? "Unknown") showed [\(winningHandComponents?.map({ (EmojiCard(rawValue: $0)?.emojiFlip.rawValue ?? "error") }).joined(separator: " ") ?? "error")] and won (\(String(format: "$%.02f", winPotSize))) with \(winDescription)"
+                                    self.seats[index].summary = "\(player.name ?? "Unknown") showed [] and won (\(String(format: "$%.02f", winPotSize))) with \(winDescription)"
                                 }
 
                             } else {
@@ -345,19 +344,16 @@ public class Hand {
                         summary = summary.replacingOccurrences(of: seat.player?.name ?? "Unknown", with: "\(seat.player?.name ?? "Unknown") (small blind)")
                     }
 
-//                    for smallBlind in self.missingSmallBlinds {
-//                        if smallBlind.id == seat.player?.id {
-//                            summary = summary.replacingOccurrences(of: seat.player?.name ?? "Unknown", with: "\(seat.player?.name ?? "Unknown") (missing small blind)")
-//                        }
-//                    }
                     for bigBlind in self.bigBlind {
                         if bigBlind.id == seat.player?.id {
                             summary = summary.replacingOccurrences(of: seat.player?.name ?? "Unknown", with: "\(seat.player?.name ?? "Unknown") (big blind)")
                         }
                     }
-                    if seat.showedHand != nil {
+                    
+                    if (seat.showedHand != nil) && (!summary.contains("[]")) {
                         lines.append("Seat \(seat.number): \(summary) [\(seat.showedHand ?? "error")]")
                     } else {
+                        summary = summary.replacingOccurrences(of: "[]", with: "[\(seat.showedHand ?? "error")]")
                         lines.append("Seat \(seat.number): \(summary)")
                     }
                 }
